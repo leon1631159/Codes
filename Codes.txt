@@ -1,0 +1,45 @@
+import numpy
+import math
+import matplotlib.pyplot as plt
+
+Input_nodes = 2
+Output_nodes = 1
+Hidden_nodes = 4
+batch_size = 6
+
+Input_data = numpy.random.randn(batch_size, Input_nodes)		% Generating random values 
+Output_data = numpy.random.randn(batch_size, Output_nodes)		% Generating random values
+
+W1 = numpy.random.randn(Input_nodes, Hidden_nodes)			% Generating random values 
+W2 = numpy.random.rands(Hidden_nodes, Output_nodes)			% Generating random values 
+
+loss_array = numpy.array([[]])						% Declearing array for loss
+indices = numpy.array([[]]) 						% Declearing array for indices
+
+
+for i in range (500):
+	Hidden_values = Input_Data.dot(W1)					% Multiplication of input data with weight (W1)
+
+	Hidden_relu = numpy.maximum(Hidden_values, 0)				% ReLU to replace all the negative values with 0
+
+	x = Hidden_relu.dot(W2)							% Multiplication of Hidden layer data with weight (W2)
+
+	Output_data_predictions = 1 / (1 + math.exp(-x))			% Applying Sigmoid function
+
+	loss = (Output_data_predictions - Output_data).sum()			% Determining the loss
+	loss_array = numpy.append(loss_array, loss)				% Saving each loss in the loss_array
+	indices = numpy.append(indices, i) 					% Saving each indices (i) in the indices
+
+	Gradient_of_loss = 2 * (Output_data_predictions - Output_data)		% Starting of chain rule in the back propagation
+	Gradient_of_W2 = Hidden_relu.T.dot(Gradient_of_loss)			% Used Transpose function to make the matrix's neighbouring  value similar
+	Gradient_Hidden_relu = Gradient_of_loss.dot(W2.T)
+	Gradient_Hidden_values = Gradient_Hidden_relu.copy()
+	Gradient_Hidden_values[Hidden_values < 0] = 0
+	Gradient_of_W1 = Input_data.T.dot(Gradient_Hidden_values)
+	
+	W1 = W1 - Gradient_of_W1 * 1e-3						% Updating the weights
+	W2 = W2 - Gradient_of_W2 * 1e-3
+
+plt.plot(indices, loss_array)
+plt.legend(['Loss over iterations'])
+plt.show()
